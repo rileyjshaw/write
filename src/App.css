@@ -1,0 +1,16 @@
+.App {
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	min-height: 100vh;
+}
+
+.App-editor {
+	align-items: center;
+	box-sizing: border-box;
+	display: flex;
+	flex: 1;
+	font-family: monospace;
+	text-align: center;
+}
