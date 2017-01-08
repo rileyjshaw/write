@@ -34,6 +34,11 @@ class StatefulAppWrapper extends Component {
 			history.pushState(null, null, `#${hash}`);
 		}
 
+		document.title = 'Write | ' + hash
+			.split('-')
+			.map(word => word[0].toUpperCase() + word.slice(1))
+			.join(' ');
+
 		const rawDraftContentState = window.localStorage.getItem(hash);
 		const contentState = rawDraftContentState
 			? convertFromRaw(JSON.parse(rawDraftContentState))
