@@ -6,28 +6,28 @@ import './App.css';
 
 class App extends Component {
 	componentDidUpdate (prevProps) {
-		if (this.Editor && prevProps.editorState !== this.props.editorState) {
+		if (this.Editor && prevProps.editors !== this.props.editors) {
 			this.Editor.focus();
 		}
 	}
 
 	render () {
-		const {editorState, onChange} = this.props;
+		const {editors, onChange} = this.props;
 
 		return <div className='App'>
 			<div className='App-editor'>
-				<Editor
+				{editors.map((editorState, i) => <Editor
 					editorState={editorState}
-					onChange={onChange}
+					onChange={newState => onChange(newState, i)}
 					ref={el => this.Editor = el}
-				/>
+				/>)}
 			</div>
 		</div>;
 	}
 }
 
 App.propTypes = {
-	editorState: PropTypes.object.isRequired,
+	editors: PropTypes.arrayOf(PropTypes.object).isRequired,
 	onChange: PropTypes.func.isRequired,
 }
 
