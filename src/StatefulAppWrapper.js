@@ -31,7 +31,7 @@ class StatefulAppWrapper extends Component {
 			hash = hash.slice(1);
 		} else {
 			hash = getSessionId();
-			history.pushState(null, null, `#${hash}`);
+			window.history.pushState(null, null, `#${hash}`);
 		}
 
 		document.title = 'Write | ' + hash

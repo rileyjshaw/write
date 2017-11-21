@@ -1,4 +1,5 @@
 import {Editor} from 'draft-js';
+import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import './App.css';
 
@@ -13,7 +14,7 @@ class App extends Component {
 	render () {
 		const {editorState, onChange} = this.props;
 
-		return <div className="App">
+		return <div className='App'>
 			<div className='App-editor'>
 				<Editor
 					editorState={editorState}
@@ -26,8 +27,8 @@ class App extends Component {
 }
 
 App.propTypes = {
-	editorState: React.PropTypes.object.isRequired,
-	onChange: React.PropTypes.func.isRequired,
+	editorState: PropTypes.object.isRequired,
+	onChange: PropTypes.func.isRequired,
 }
 
 export default App;
