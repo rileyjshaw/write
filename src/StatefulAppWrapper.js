@@ -39,34 +39,37 @@ class StatefulAppWrapper extends Component {
 			.map(word => word[0].toUpperCase() + word.slice(1))
 			.join(' ');
 
-		const rawDraftContentStates = window.localStorage.getItem(hash);
-		const editorStates = rawDraftContentStates
-			? JSON.parse(rawDraftContentStates).map(rawState => moveFocusToEnd(
-				EditorState.createWithContent(convertFromRaw(rawState))))
-			: [ContentState.createFromText('hey you.')];
+		const rawDraftEditors = window.localStorage.getItem(hash);
+		const editors = rawDraftEditors
+			? JSON.parse(rawDraftEditors).map(rawState => ({
+				...rawState,
+				editorState: moveFocusToEnd(EditorState.createWithContent(
+					convertFromRaw(rawState.editorRawContent))),
+			}))
+			: [{
+				x: 0,
+				y: 0,
+				editorState: EditorState.createWithContent(
+					ContentState.createFromText('hey you.')),
+			}];
 
-		this.setState({hash, editors: editorStates});
+		this.setState({hash, editors});
 	}
 
-	// TODO(riley): Pad the entire thing (left / right) with spaces so that you
-	//              can click **anywhere**!
-	//
-	//              Padding will need to be uneven for lines with an even # of
-	//              chars, but that's actually good! It'll make monospace stuff
-	//              line up way better.
 	onChange (editorState, i) {
 		const {hash, editors} = this.state;
-		const contentState = editorState.getCurrentContent();
-		console.log(editorState, contentState);
+
 		const updatedEditors = [
 			...editors.slice(0, i),
-			contentState,
+			{...editors[i], editorState},
 			...editors.slice(i + 1),
 		];
-		const rawDraftContentStates = JSON.stringify(updatedEditors.map(convertToRaw));
-		window.localStorage.setItem(hash, rawDraftContentStates);
-
-		this.setState({editors: [editorState]});
+		const rawDraftEditors = JSON.stringify(updatedEditors.map(editor => ({
+			...editor,
+			editorRawContent: convertToRaw(editorState.getCurrentContent()),
+		})));
+		window.localStorage.setItem(hash, rawDraftEditors);
+		this.setState({editors: updatedEditors});
 	}
 
 	render () {

@@ -16,8 +16,9 @@ class App extends Component {
 
 		return <div className='App'>
 			<div className='App-editor'>
-				{editors.map((editorState, i) => <Editor
+				{editors.map(({x, y, editorState}, i) => <Editor
 					editorState={editorState}
+					key={i}
 					onChange={newState => onChange(newState, i)}
 					ref={el => this.Editor = el}
 				/>)}
