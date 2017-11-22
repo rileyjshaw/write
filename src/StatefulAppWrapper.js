@@ -11,7 +11,7 @@ const FONT_SIZE_PX = 13;
 const LINE_HEIGHT_PX = 18;
 
 class StatefulAppWrapper extends Component {
-	state = {cX: 0, cY: 0, hash: null, editors: []};
+	state = {cX: 0, cY: 0, hash: null, editors: [], lastFocus: 0};
 
 	componentDidMount () {
 		window.addEventListener('click', this.handleClick);
@@ -79,19 +79,21 @@ class StatefulAppWrapper extends Component {
 						editorState: moveFocusToEnd(EditorState.createEmpty()),
 					},
 				],
+				lastFocus: editors.length,
 			}));
 		}
 	}
 
 	handleChange = (newEditorState, i) => {
-		const {hash, editors} = this.state;
+		const {hash, editors, lastFocus} = this.state;
 
 		const updatedEditors = [
 			...editors.slice(0, i),
 			{...editors[i], editorState: newEditorState},
 			...editors.slice(i + 1),
-		].filter(({editorState}) => editorState.inCompositionMode || editorState.getCurrentContent().hasText());
-		window.abc = updatedEditors[0].editorState.getCurrentContent();
+		].filter(({editorState}) => editorState.getSelection().getHasFocus() ||
+			editorState.getCurrentContent().hasText() || lastFocus === i);
+
 		const rawDraftEditors = JSON.stringify(
 			updatedEditors.map(({x, y, editorState}, j) => ({
 				x,
@@ -104,7 +106,7 @@ class StatefulAppWrapper extends Component {
 		);
 
 		window.localStorage.setItem(hash, rawDraftEditors);
-		this.setState({editors: updatedEditors});
+		this.setState({editors: updatedEditors, lastFocus: i});
 	}
 
 	render () {
