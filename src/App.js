@@ -5,24 +5,27 @@ import './App.css';
 
 
 class App extends Component {
-	componentDidUpdate (prevProps) {
-		if (this.Editor && prevProps.editors !== this.props.editors) {
-			this.Editor.focus();
-		}
+	Editors = []
+
+	handleContainerClick = (e, i) => {
+		this.Editors[i].focus();
 	}
 
 	render () {
-		const {editors, onChange} = this.props;
+		const {cX, cY, editors, onChange} = this.props;
 
 		return <div className='App'>
-			<div className='App-editor'>
-				{editors.map(({x, y, editorState}, i) => <Editor
-					editorState={editorState}
+			{editors.map(({x, y, editorState}, i) => <div className='App-editor'
 					key={i}
+					onClick={e => this.handleContainerClick(e, i)}
+					style={{left: cX + x, top: cY + y}}
+			>
+				<Editor
+					editorState={editorState}
 					onChange={newState => onChange(newState, i)}
-					ref={el => this.Editor = el}
-				/>)}
-			</div>
+					ref={el => this.Editors[i] = el}
+				/>
+			</div>)}
 		</div>;
 	}
 }

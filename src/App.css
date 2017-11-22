@@ -1,9 +1,6 @@
 .App {
-	align-items: center;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
 	min-height: 100vh;
+	position: relative;
 }
 
 .App-editor {
@@ -12,5 +9,12 @@
 	display: flex;
 	flex: 1;
 	font-family: monospace;
+	font-size: 13px;
+	left: 50%;
+	line-height: 18px;
+	max-width: 40em;
+	position: absolute;
 	text-align: center;
+	top: 50%;
+	transform: translate(-50%, 0);
 }
