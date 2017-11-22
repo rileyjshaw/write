@@ -11,20 +11,29 @@ const FONT_SIZE_PX = 13;
 const LINE_HEIGHT_PX = 18;
 
 class StatefulAppWrapper extends Component {
-	state = {cX: 0, cY: 0, hash: null, editors: [], lastFocus: 0};
+	state = {cX: 0, cY: 0, gridX: null, hash: null, editors: [], lastFocus: 0};
 
 	componentDidMount () {
 		window.addEventListener('click', this.handleClick);
 		window.addEventListener('hashchange', this.load);
 		window.addEventListener('resize', this.measure);
 		this.load();
-		window.setTimeout(this.measure);
 	}
 
 	componentWillUnmount () {
 		window.removeEventListener('click', this.handleClick);
 		window.removeEventListener('hashchange', this.load);
 		window.removeEventListener('resize', this.measure);
+	}
+
+	componentDidUpdate (prevProps, prevState) {
+		const {gridX} = this.state;
+
+		if (typeof gridX !== 'number' && this.GridProbe) {
+			this.setState({gridX: ReactDOM.findDOMNode(this.GridProbe).offsetWidth / 1000});
+		} else if (typeof prevState.gridX !== 'number') {
+			this.measure();
+		}
 	}
 
 	measure = () => {
@@ -74,6 +83,7 @@ class StatefulAppWrapper extends Component {
 					...editors,
 					{
 						// TODO(riley): Some magic here.
+						// TODO(riley): Latch to the grid on render, not on construction.
 						x: Math.round((pageX - cX) / FONT_SIZE_PX) * FONT_SIZE_PX - 2,
 						y: Math.round((pageY - cY) / LINE_HEIGHT_PX) * LINE_HEIGHT_PX,
 						editorState: moveFocusToEnd(EditorState.createEmpty()),
@@ -81,12 +91,17 @@ class StatefulAppWrapper extends Component {
 				],
 				lastFocus: editors.length,
 			}));
+		} else if (!this.state.editors.some(({editorState}) =>
+				editorState.getSelection().getHasFocus())) {
+			const {Container: {Editors = []} = {}} = this;
+			if (Editors.length) Editors[0].focus();
 		}
 	}
 
 	handleChange = (newEditorState, i) => {
 		const {hash, editors, lastFocus} = this.state;
 
+		// Update the focused Editor and remove any empty, unfocused ones.
 		const updatedEditors = [
 			...editors.slice(0, i),
 			{...editors[i], editorState: newEditorState},
@@ -94,6 +109,7 @@ class StatefulAppWrapper extends Component {
 		].filter(({editorState}) => editorState.getSelection().getHasFocus() ||
 			editorState.getCurrentContent().hasText() || lastFocus === i);
 
+		// Persist the current state to localStorage and state.
 		const rawDraftEditors = JSON.stringify(
 			updatedEditors.map(({x, y, editorState}, j) => ({
 				x,
@@ -104,21 +120,24 @@ class StatefulAppWrapper extends Component {
 				).getCurrentContent()),
 			}))
 		);
-
 		window.localStorage.setItem(hash, rawDraftEditors);
 		this.setState({editors: updatedEditors, lastFocus: i});
 	}
 
 	render () {
-		const {cX, cY, editors, hash} = this.state;
+		const {cX, cY, editors, gridX, hash} = this.state;
 
-		return hash && <App
-			cX={cX}
-			cY={cY}
-			editors={editors}
-			onChange={this.handleChange}
-			ref={el => this.Container = el}
-		/>
+		return hash && (typeof gridX === 'number'
+			? <App
+				cX={cX}
+				cY={cY}
+				editors={editors}
+				onChange={this.handleChange}
+				ref={el => this.Container = el}
+			/>
+			: <span className='Grid-probe' ref={el => this.GridProbe = el}>
+				{new Array(1000).fill('.').join('')}
+			</span>);
 	}
 }
 

@@ -1,3 +1,13 @@
+.Grid-probe, .App-editor {
+	font-size: 13px;
+	font-family: monospace;
+	line-height: 18px;
+}
+
+.Grid-probe {
+	visibility: hidden;
+}
+
 .App {
 	min-height: 100vh;
 	position: relative;
@@ -8,13 +18,18 @@
 	box-sizing: border-box;
 	display: flex;
 	flex: 1;
-	font-family: monospace;
-	font-size: 13px;
 	left: 50%;
-	line-height: 18px;
-	max-width: 40em;
+	padding: 1em;
 	position: absolute;
 	text-align: center;
 	top: 50%;
-	transform: translate(-50%, 0);
+	/* TODO(riley): Allow free scrolling anywhere, and place indicators on screen
+	 *              edges when there's more content off-screen in that direction.
+	 */
+	transform: translate(-50%, -50%);
+}
+
+/* TODO(riley): Pass this as an inline style. */
+.public-DraftStyleDefault-block {
+	min-width: 1px !important;
 }
