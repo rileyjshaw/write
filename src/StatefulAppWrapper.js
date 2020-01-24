@@ -3,6 +3,7 @@ import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import getSessionId from './getSessionId';
+import {getHello} from './hello';
 
 const {moveFocusToEnd} = EditorState;
 
@@ -70,7 +71,7 @@ class StatefulAppWrapper extends Component {
 				x: 0,
 				y: 0,
 				editorState: moveFocusToEnd(EditorState.createWithContent(
-					ContentState.createFromText('hey you.'))),
+					ContentState.createFromText(`${getHello()}.`))),
 			}];
 
 		this.setState({hash, editors});
