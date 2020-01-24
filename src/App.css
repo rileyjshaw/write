@@ -21,12 +21,31 @@
 	left: 50%;
 	padding: 1em;
 	position: absolute;
-	text-align: center;
 	top: 50%;
 	/* TODO(riley): Allow free scrolling anywhere, and place indicators on screen
 	 *              edges when there's more content off-screen in that direction.
 	 */
 	transform: translate(-50%, -50%);
+}
+
+.App.control-mode-on .App-editor.focused {
+	border-style: solid;
+	border-width: 1px;
+	border-image-source: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns=%22http:%2F%2Fwww.w3.org%2F2000%2Fsvg%22 viewBox=%220 0 16 16%22%3E%3Crect x=%220.5%22 y=%220.5%22 width=%2215%22 height=%2215%22 fill=%22transparent%22 stroke=%22%23666%22 stroke-width=%221%22 %2F%3E%3C%2Fsvg%3E");
+	border-image-slice: 50%;
+	border-image-width: 8px;
+}
+
+.DraftEditor-alignLeft {
+	text-align: left;
+}
+
+.DraftEditor-alignCenter {
+	text-align: center;
+}
+
+.DraftEditor-alignRight {
+	text-align: right;
 }
 
 /* TODO(riley): Pass this as an inline style. */

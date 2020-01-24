@@ -12,12 +12,14 @@ const FONT_SIZE_PX = 13;
 const LINE_HEIGHT_PX = 18;
 
 class StatefulAppWrapper extends Component {
-	state = {cX: 0, cY: 0, gridX: null, hash: null, editors: [], lastFocus: 0};
+	state = {cX: 0, cY: 0, gridX: null, hash: null, editors: [], lastFocus: 0, controlMode: false};
 
 	componentDidMount () {
 		window.addEventListener('click', this.handleClick);
 		window.addEventListener('hashchange', this.load);
 		window.addEventListener('resize', this.measure);
+		window.addEventListener('keydown', this.handleKeydown);
+		window.addEventListener('keyup', this.handleKeyup);
 		this.load();
 	}
 
@@ -25,6 +27,8 @@ class StatefulAppWrapper extends Component {
 		window.removeEventListener('click', this.handleClick);
 		window.removeEventListener('hashchange', this.load);
 		window.removeEventListener('resize', this.measure);
+		window.removeEventListener('keydown', this.handleKeydown);
+		window.removeEventListener('keyup', this.handleKeyup);
 	}
 
 	componentDidUpdate (prevProps, prevState) {
@@ -64,12 +68,14 @@ class StatefulAppWrapper extends Component {
 			? JSON.parse(rawDraftEditors).map(({x, y, editorRawContent}) => ({
 				x,
 				y,
+				editorProps: {textAlignment: 'center'},  // TODO(riley): Save and restore props.
 				editorState: moveFocusToEnd(EditorState.createWithContent(
 					convertFromRaw(editorRawContent))),
 			}))
 			: [{
 				x: 0,
 				y: 0,
+				editorProps: {textAlignment: 'center'},
 				editorState: moveFocusToEnd(EditorState.createWithContent(
 					ContentState.createFromText(`${getHello()}.`))),
 			}];
@@ -79,7 +85,7 @@ class StatefulAppWrapper extends Component {
 
 	handleClick = ({metaKey, pageX, pageY}) => {
 		if (metaKey) {
-			this.setState(({cX, cY, editors}) => ({
+			this.setState(({cX, cY, editors, lastFocus}) => ({
 				editors: [
 					...editors,
 					{
@@ -87,6 +93,7 @@ class StatefulAppWrapper extends Component {
 						// TODO(riley): Latch to the grid on render, not on construction.
 						x: Math.round((pageX - cX) / FONT_SIZE_PX) * FONT_SIZE_PX - 2,
 						y: Math.round((pageY - cY) / LINE_HEIGHT_PX) * LINE_HEIGHT_PX,
+						editorProps: {...editors[lastFocus].editorProps},
 						editorState: moveFocusToEnd(EditorState.createEmpty()),
 					},
 				],
@@ -125,14 +132,74 @@ class StatefulAppWrapper extends Component {
 		this.setState({editors: updatedEditors, lastFocus: i});
 	}
 
+	handleKeydown = (e) => {
+		const {key, metaKey} = e;
+		const {controlMode} = this.state;
+		if (controlMode && !metaKey) {
+			switch (key) {
+				case 'ArrowLeft':
+					this.setState(({editors, lastFocus}) => {
+						const editor = editors[lastFocus];
+						const updatedEditors = [
+							...editors.slice(0, lastFocus),
+							{
+								...editor,
+								editorProps: {
+									...editor.editorProps,
+									textAlignment: editor.editorProps.textAlignment === 'right'
+										? 'center'
+										: 'left',
+								},
+							},
+							...editors.slice(lastFocus + 1),
+						];
+						return {
+							editors: updatedEditors,
+						};
+					});
+					break;
+				case 'ArrowRight':
+					this.setState(({editors, lastFocus}) => {
+						const editor = editors[lastFocus];
+						const updatedEditors = [
+							...editors.slice(0, lastFocus),
+							{
+								...editor,
+								editorProps: {
+									...editor.editorProps,
+									textAlignment: editor.editorProps.textAlignment === 'left'
+										? 'center'
+										: 'right',
+								},
+							},
+							...editors.slice(lastFocus + 1),
+						];
+						return {
+							editors: updatedEditors,
+						};
+					});
+					break;
+				default:
+					break;
+			}
+			this.setState({controlMode: false});
+			e.preventDefault();
+			e.stopPropagation();
+		} else if (metaKey && key.toLowerCase() === 'e') {
+			this.setState(({controlMode}) => ({controlMode: !controlMode}));
+		}
+	}
+
 	render () {
-		const {cX, cY, editors, gridX, hash} = this.state;
+		const {controlMode, cX, cY, editors, gridX, hash, lastFocus} = this.state;
 
 		return hash && (typeof gridX === 'number'
 			? <App
+				className={`control-mode-${controlMode ? 'on' : 'off'}`}
 				cX={cX}
 				cY={cY}
 				editors={editors}
+				lastFocus={lastFocus}
 				onChange={this.handleChange}
 				ref={el => this.Container = el}
 			/>
