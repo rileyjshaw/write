@@ -1,3 +1,7 @@
+:root {
+	--grid-gap: 1em;
+}
+
 body {
   margin: 0;
 }
