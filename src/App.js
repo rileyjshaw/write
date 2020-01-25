@@ -1,4 +1,9 @@
-import {ContentState, convertFromRaw, convertToRaw, EditorState} from 'draft-js';
+import {
+	ContentState,
+	convertFromRaw,
+	convertToRaw,
+	EditorState,
+} from 'draft-js';
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import Loader from './Loader';
@@ -7,7 +12,6 @@ import getSessionId from './getSessionId';
 import {getHello} from './hello';
 
 import './App.css';
-
 
 const GRID_PROBE_WIDTH = 10000;
 const {moveFocusToEnd} = EditorState;
@@ -22,31 +26,44 @@ const NOTICES = Object.freeze({
 	CONTROL: 'control',
 });
 const notices = {
-	delete: ['Delete? y/N', function({key}) {
-		switch (key) {
-			case 'y':
-			case 'Y':
-				localStorage.removeItem(this.state.documents[this.state.loadIndex]);
-				this.setState(({documents, loadIndex}) => {
-					const newDocuments = [...documents.slice(0, loadIndex), ...documents.slice(loadIndex + 1)];
-					const newLoadIndex = Math.max(0, Math.min(loadIndex, documents.length - 2));
-					return {
-						documents: newDocuments,
-						editors: this.getEditors(newDocuments[newLoadIndex]),
-						notice: null,
-						loadIndex: newLoadIndex,
-					};
-				});
-				break;
-			case 'n':
-			case 'N':
-			case 'Enter':
-				this.setState({notice: null});
-				break;
-			default:
-				break;
-		}
-	}],
+	delete: [
+		'Delete? y/N',
+		function({key}) {
+			switch (key) {
+				case 'y':
+				case 'Y':
+					localStorage.removeItem(
+						this.state.documents[this.state.loadIndex]
+					);
+					this.setState(({documents, loadIndex}) => {
+						const newDocuments = [
+							...documents.slice(0, loadIndex),
+							...documents.slice(loadIndex + 1),
+						];
+						const newLoadIndex = Math.max(
+							0,
+							Math.min(loadIndex, documents.length - 2)
+						);
+						return {
+							documents: newDocuments,
+							editors: this.getEditors(
+								newDocuments[newLoadIndex]
+							),
+							notice: null,
+							loadIndex: newLoadIndex,
+						};
+					});
+					break;
+				case 'n':
+				case 'N':
+				case 'Enter':
+					this.setState({notice: null});
+					break;
+				default:
+					break;
+			}
+		},
+	],
 	control: ['Control mode'],
 };
 
@@ -66,7 +83,7 @@ class App extends Component {
 		showGrid: false,
 	};
 
-	componentDidMount () {
+	componentDidMount() {
 		window.addEventListener('click', this.handleClick);
 		window.addEventListener('hashchange', this.handleHashChange);
 		window.addEventListener('resize', this.measure);
@@ -75,7 +92,7 @@ class App extends Component {
 		this.handleHashChange();
 	}
 
-	componentWillUnmount () {
+	componentWillUnmount() {
 		window.removeEventListener('click', this.handleClick);
 		window.removeEventListener('hashchange', this.handleHashChange);
 		window.removeEventListener('resize', this.measure);
@@ -83,10 +100,16 @@ class App extends Component {
 		window.removeEventListener('keyup', this.handleKeyup);
 	}
 
-	componentDidUpdate (prevProps, prevState) {
+	componentDidUpdate(prevProps, prevState) {
 		if (typeof this.state.gridGap !== 'number' && this.GridProbe) {
-			const gridGap = ReactDOM.findDOMNode(this.GridProbe).offsetWidth / GRID_PROBE_WIDTH * 2;
-			document.documentElement.style.setProperty('--grid-gap', `${gridGap}px`);
+			const gridGap =
+				(ReactDOM.findDOMNode(this.GridProbe).offsetWidth /
+					GRID_PROBE_WIDTH) *
+				2;
+			document.documentElement.style.setProperty(
+				'--grid-gap',
+				`${gridGap}px`
+			);
 			this.setState({gridGap});
 		} else if (typeof prevState.gridGap !== 'number') {
 			this.measure();
@@ -99,49 +122,63 @@ class App extends Component {
 		const cY = container.clientHeight / 2;
 
 		this.setState({cX, cY});
-	}
+	};
 
 	// TODO(riley): Store editors in Dexie or PouchDB.
-	getEditors = (hash) => {
+	getEditors = hash => {
 		const rawDraftEditors = window.localStorage.getItem(hash);
 		return rawDraftEditors
 			? JSON.parse(rawDraftEditors).map(({x, y, editorRawContent}) => ({
-				x,
-				y,
-				editorProps: {textAlignment: 'center'},  // TODO(riley): Save and restore props.
-				editorState: moveFocusToEnd(EditorState.createWithContent(
-					convertFromRaw(editorRawContent))),
-			}))
-			: [{
-				x: 0,
-				y: 0,
-				editorProps: {textAlignment: 'center'},
-				editorState: moveFocusToEnd(EditorState.createWithContent(
-					ContentState.createFromText(`${getHello()}.`))),
-			}];
-	}
+					x,
+					y,
+					editorProps: {textAlignment: 'center'}, // TODO(riley): Save and restore props.
+					editorState: moveFocusToEnd(
+						EditorState.createWithContent(
+							convertFromRaw(editorRawContent)
+						)
+					),
+			  }))
+			: [
+					{
+						x: 0,
+						y: 0,
+						editorProps: {textAlignment: 'center'},
+						editorState: moveFocusToEnd(
+							EditorState.createWithContent(
+								ContentState.createFromText(`${getHello()}.`)
+							)
+						),
+					},
+			  ];
+	};
 
-	load = (hash) => {
-		document.title = 'Write | ' + hash
-			.split('-')
-			.map(word => word[0].toUpperCase() + word.slice(1))
-			.join(' ');
+	load = hash => {
+		document.title =
+			'Write | ' +
+			hash
+				.split('-')
+				.map(word => word[0].toUpperCase() + word.slice(1))
+				.join(' ');
 
-		this.setState({hash, editors: this.getEditors(hash), mode: MODES.INSERT});
-	}
+		this.setState({
+			hash,
+			editors: this.getEditors(hash),
+			mode: MODES.INSERT,
+		});
+	};
 
 	handleHashChange = () => {
 		let {hash} = window.location;
 		if (hash) {
 			this.load(hash.slice(1));
 		} else this.createNewDocument();
-	}
+	};
 
 	createNewDocument = () => {
 		const hash = getSessionId();
 		window.history.pushState(null, null, `#${hash}`);
 		this.load(hash);
-	}
+	};
 
 	handleClick = ({metaKey, pageX, pageY}) => {
 		if (metaKey) {
@@ -158,12 +195,15 @@ class App extends Component {
 				],
 				lastFocus: editors.length,
 			}));
-		} else if (!this.state.editors.some(({editorState}) =>
-				editorState.getSelection().getHasFocus())) {
+		} else if (
+			!this.state.editors.some(({editorState}) =>
+				editorState.getSelection().getHasFocus()
+			)
+		) {
 			const {Container: {Editors = []} = {}} = this;
 			if (Editors.length) Editors[0].focus();
 		}
-	}
+	};
 
 	handleChange = (newEditorState, i) => {
 		const {hash, editors, lastFocus} = this.state;
@@ -173,25 +213,31 @@ class App extends Component {
 			...editors.slice(0, i),
 			{...editors[i], editorState: newEditorState},
 			...editors.slice(i + 1),
-		].filter(({editorState}) => editorState.getSelection().getHasFocus() ||
-			editorState.getCurrentContent().hasText() || lastFocus === i);
+		].filter(
+			({editorState}) =>
+				editorState.getSelection().getHasFocus() ||
+				editorState.getCurrentContent().hasText() ||
+				lastFocus === i
+		);
 
 		// Persist the current state to localStorage and state.
 		const rawDraftEditors = JSON.stringify(
 			updatedEditors.map(({x, y, editorState}, j) => ({
 				x,
 				y,
-				editorRawContent: convertToRaw(((i === j)
-					? newEditorState
-					: editorState
-				).getCurrentContent()),
+				editorRawContent: convertToRaw(
+					(i === j
+						? newEditorState
+						: editorState
+					).getCurrentContent()
+				),
 			}))
 		);
 		window.localStorage.setItem(hash, rawDraftEditors);
 		this.setState({editors: updatedEditors, lastFocus: i});
-	}
+	};
 
-	handleKeyup = (e) => {
+	handleKeyup = e => {
 		const {key} = e;
 		this.setState({
 			keyStates: {
@@ -199,9 +245,9 @@ class App extends Component {
 				[key]: false,
 			},
 		});
-	}
+	};
 
-	handleKeydown = (e) => {
+	handleKeydown = e => {
 		const {key, metaKey, repeat} = e;
 		if (repeat) return;
 		const {documents, keyStates, loadIndex, mode, notice} = this.state;
@@ -223,7 +269,9 @@ class App extends Component {
 			switch (key) {
 				case 'ArrowUp':
 					this.setState(({documents, loadIndex}) => {
-						const newIndex = (documents.length + loadIndex - 1) % documents.length;
+						const newIndex =
+							(documents.length + loadIndex - 1) %
+							documents.length;
 						return {
 							loadIndex: newIndex,
 							editors: this.getEditors(documents[newIndex]),
@@ -283,9 +331,11 @@ class App extends Component {
 								...editor,
 								editorProps: {
 									...editor.editorProps,
-									textAlignment: editor.editorProps.textAlignment === 'right'
-										? 'center'
-										: 'left',
+									textAlignment:
+										editor.editorProps.textAlignment ===
+										'right'
+											? 'center'
+											: 'left',
 								},
 							},
 							...editors.slice(lastFocus + 1),
@@ -305,9 +355,11 @@ class App extends Component {
 								...editor,
 								editorProps: {
 									...editor.editorProps,
-									textAlignment: editor.editorProps.textAlignment === 'left'
-										? 'center'
-										: 'right',
+									textAlignment:
+										editor.editorProps.textAlignment ===
+										'left'
+											? 'center'
+											: 'right',
 								},
 							},
 							...editors.slice(lastFocus + 1),
@@ -333,7 +385,9 @@ class App extends Component {
 				case 'O':
 					this.setState(() => {
 						const documents = Object.keys(localStorage);
-						const hash = window.location.hash && window.location.hash.slice(1);
+						const hash =
+							window.location.hash &&
+							window.location.hash.slice(1);
 						return {
 							documents,
 							loadIndex: Math.max(0, documents.indexOf(hash)),
@@ -349,40 +403,82 @@ class App extends Component {
 			e.stopPropagation();
 		} else if (metaKey && key.toLowerCase() === 'e') {
 			// If it's in insert or control mode, toggle to the other one. Otherwise, don't change the mode.
-			this.setState(({mode}) => ({mode: {insert: MODES.CONTROL, control: MODES.INSERT}[mode] || mode }));
+			this.setState(({mode}) => ({
+				mode:
+					{insert: MODES.CONTROL, control: MODES.INSERT}[mode] ||
+					mode,
+			}));
 		}
-	}
+	};
 
-	render () {
-		const {cX, cY, documents, editors, gridGap, hash, keyStates, lastFocus, loadIndex, mode, notice, showGrid} = this.state;
+	render() {
+		const {
+			cX,
+			cY,
+			documents,
+			editors,
+			gridGap,
+			hash,
+			keyStates,
+			lastFocus,
+			loadIndex,
+			mode,
+			notice,
+			showGrid,
+		} = this.state;
 
 		const sized = typeof gridGap === 'number';
-		return <div
-			className={`App${
-				sized && (showGrid || mode === 'control' || keyStates.Meta) ? ' show-grid' : ''
-			} control-mode-${mode === 'control' ? 'on' : 'off'}`}
-			style={sized ? {
-				backgroundSize: `${gridGap}px ${gridGap}px`,
-				lineHeight: `${gridGap}px`,
-			} : {}}
-		>
-			{hash && (sized
-				? <>
-					{mode === MODES.LOAD && <Loader documents={documents} index={loadIndex} />}
-					{notice && <p><strong className='App-notice'>{notices[notice][0]}</strong></p>}
-					<Workspace
-						cX={cX}
-						cY={cY}
-						editors={editors}
-						lastFocus={lastFocus}
-						onChange={this.handleChange}
-						ref={el => this.Container = el}
-					/>
-				</>
-				: <span className='Grid-probe' ref={el => this.GridProbe = el}>
-					{new Array(GRID_PROBE_WIDTH).fill('0').join('')}
-				</span>)}
-		</div>;
+		return (
+			<div
+				className={`App${
+					sized && (showGrid || mode === 'control' || keyStates.Meta)
+						? ' show-grid'
+						: ''
+				} control-mode-${mode === 'control' ? 'on' : 'off'}`}
+				style={
+					sized
+						? {
+								backgroundSize: `${gridGap}px ${gridGap}px`,
+								lineHeight: `${gridGap}px`,
+						  }
+						: {}
+				}
+			>
+				{hash &&
+					(sized ? (
+						<>
+							{mode === MODES.LOAD && (
+								<Loader
+									documents={documents}
+									index={loadIndex}
+								/>
+							)}
+							{notice && (
+								<p>
+									<strong className="App-notice">
+										{notices[notice][0]}
+									</strong>
+								</p>
+							)}
+							<Workspace
+								cX={cX}
+								cY={cY}
+								editors={editors}
+								lastFocus={lastFocus}
+								onChange={this.handleChange}
+								ref={el => (this.Container = el)}
+							/>
+						</>
+					) : (
+						<span
+							className="Grid-probe"
+							ref={el => (this.GridProbe = el)}
+						>
+							{new Array(GRID_PROBE_WIDTH).fill('0').join('')}
+						</span>
+					))}
+			</div>
+		);
 	}
 }
 

@@ -1,19 +1,19 @@
 class LocalStorageMock {
-  constructor() {
-    this.store = {};
-  }
+	constructor() {
+		this.store = {};
+	}
 
-  clear() {
-    this.store = {};
-  }
+	clear() {
+		this.store = {};
+	}
 
-  getItem (key) {
-    return this.store[key];
-  }
+	getItem(key) {
+		return this.store[key];
+	}
 
-  setItem (key, value) {
-    this.store[key] = value.toString();
-  }
-};
+	setItem(key, value) {
+		this.store[key] = value.toString();
+	}
+}
 
-global.localStorage = new LocalStorageMock;
+global.localStorage = new LocalStorageMock();

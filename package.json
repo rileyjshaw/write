@@ -1,36 +1,52 @@
 {
-  "name": "write",
-  "version": "0.2.0",
-  "private": true,
-  "homepage": "/write",
-  "devDependencies": {
-    "gh-pages": "^2.2.0",
-    "react-scripts": "3.3.0"
-  },
-  "dependencies": {
-    "draft-js": "^0.11.4",
-    "prop-types": "^15.7.2",
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0"
-  },
-  "scripts": {
-    "build": "react-scripts build",
-    "deploy": "gh-pages -d build",
-    "eject": "react-scripts eject",
-    "predeploy": "npm run build",
-    "start": "react-scripts start",
-    "test": "react-scripts test --env=jsdom"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  }
+	"name": "write",
+	"version": "0.2.0",
+	"private": true,
+	"homepage": "/write",
+	"devDependencies": {
+		"eslint": "^6.8.0",
+		"eslint-config-prettier": "^6.9.0",
+		"eslint-plugin-jsx-a11y": "^6.2.3",
+		"eslint-plugin-prettier": "^3.1.2",
+		"eslint-plugin-react-hooks": "^2.3.0",
+		"gh-pages": "^2.2.0",
+		"husky": "^4.2.1",
+		"lint-staged": "^10.0.2",
+		"prettier": "^1.19.1",
+		"react-scripts": "3.3.0"
+	},
+	"dependencies": {
+		"draft-js": "^0.11.4",
+		"prop-types": "^15.7.2",
+		"react": "^16.12.0",
+		"react-dom": "^16.12.0"
+	},
+	"scripts": {
+		"build": "react-scripts build",
+		"deploy": "gh-pages -d build",
+		"eject": "react-scripts eject",
+		"format": "prettier --write \"**/*.+(js|jsx|json|css|md)\"",
+		"lint": "eslint src/",
+		"lint:fix": "eslint --fix src/",
+		"predeploy": "npm run build",
+		"start": "react-scripts start",
+		"test": "react-scripts test --env=jsdom"
+	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "lint-staged"
+		}
+	},
+	"browserslist": {
+		"production": [
+			">0.2%",
+			"not dead",
+			"not op_mini all"
+		],
+		"development": [
+			"last 1 chrome version",
+			"last 1 firefox version",
+			"last 1 safari version"
+		]
+	}
 }

@@ -5,7 +5,11 @@
 }
 
 .App.show-grid {
-	background-image: radial-gradient(circle at top left, rgba(0, 0, 0, 1) 1px, transparent 0);
+	background-image: radial-gradient(
+		circle at top left,
+		rgba(0, 0, 0, 1) 1px,
+		transparent 0
+	);
 }
 
 .App-notice {
