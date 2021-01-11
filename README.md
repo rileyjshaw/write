@@ -13,6 +13,7 @@ a quiet place to jot down thoughts.
 -   left arrow: nudge alignment of active textbox left.
 -   right arrow: nudge alignment of active textbox right.
 -   g: show grid.
+-   s: toggle spellcheck.
 -   n: create new document.
 -   **o: enter file browser mode.**
 -   **meta + e: enter insert mode.**

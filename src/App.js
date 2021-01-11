@@ -131,7 +131,10 @@ class App extends Component {
 			? JSON.parse(rawDraftEditors).map(({x, y, editorRawContent}) => ({
 					x,
 					y,
-					editorProps: {textAlignment: 'center'}, // TODO(riley): Save and restore props.
+					editorProps: { // TODO(riley): Save and restore props.
+						textAlignment: 'center',
+						spellCheck: false
+					},
 					editorState: moveFocusToEnd(
 						EditorState.createWithContent(
 							convertFromRaw(editorRawContent)
@@ -142,7 +145,7 @@ class App extends Component {
 					{
 						x: 0,
 						y: 0,
-						editorProps: {textAlignment: 'center'},
+						editorProps: {textAlignment: 'center', spellCheck: false},
 						editorState: moveFocusToEnd(
 							EditorState.createWithContent(
 								ContentState.createFromText(`${getHello()}.`)
@@ -392,6 +395,27 @@ class App extends Component {
 							documents,
 							loadIndex: Math.max(0, documents.indexOf(hash)),
 							mode: MODES.LOAD,
+						};
+					});
+					break;
+				case 's':
+				case 'S':
+					this.setState(({editors, lastFocus}) => {
+						const editor = editors[lastFocus];
+						const updatedEditors = [
+							...editors.slice(0, lastFocus),
+							{
+								...editor,
+								editorProps: {
+									...editor.editorProps,
+									spellCheck: !editor.editorProps.spellCheck,
+								},
+							},
+							...editors.slice(lastFocus + 1),
+						];
+						return {
+							editors: updatedEditors,
+							mode: MODES.INSERT,
 						};
 					});
 					break;
