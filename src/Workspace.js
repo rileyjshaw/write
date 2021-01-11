@@ -36,6 +36,7 @@ class Workspace extends Component {
 						{/* eslint enable */}
 						<Editor
 							{...editorProps}
+							stripPastedStyles={true}
 							editorState={editorState}
 							onChange={newState => onChange(newState, i)}
 							ref={el => (this.Editors[i] = el)}
