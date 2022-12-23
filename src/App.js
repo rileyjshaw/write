@@ -14,6 +14,7 @@ import {getHello} from './hello';
 import './App.css';
 
 const GRID_PROBE_WIDTH = 10000;
+const LOCALSTORAGE_PREFIX = 'WRITE_APP_'
 const {moveFocusToEnd} = EditorState;
 const MODES = Object.freeze({
 	CONTROL: 'control',
@@ -33,7 +34,8 @@ const notices = {
 				case 'y':
 				case 'Y':
 					localStorage.removeItem(
-						this.state.documents[this.state.loadIndex]
+						// FIXIT: I'm about 10% done this solution. Need to make sure only prefixed keys are loaded, and it's saved / etc with the prefix everywhere.
+						LOCALSTORAGE_PREFIX + this.state.documents[this.state.loadIndex]
 					);
 					this.setState(({documents, loadIndex}) => {
 						const newDocuments = [
@@ -126,7 +128,7 @@ class App extends Component {
 
 	// TODO(riley): Store editors in Dexie or PouchDB.
 	getEditors = hash => {
-		const rawDraftEditors = window.localStorage.getItem(hash);
+		const rawDraftEditors = window.localStorage.getItem(LOCALSTORAGE_PREFIX + hash);
 		return rawDraftEditors
 			? JSON.parse(rawDraftEditors).map(({x, y, editorRawContent}) => ({
 					x,
@@ -236,7 +238,7 @@ class App extends Component {
 				),
 			}))
 		);
-		window.localStorage.setItem(hash, rawDraftEditors);
+		window.localStorage.setItem(LOCALSTORAGE_PREFIX + hash, rawDraftEditors);
 		this.setState({editors: updatedEditors, lastFocus: i});
 	};
 
